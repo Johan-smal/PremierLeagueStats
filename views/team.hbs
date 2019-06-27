@@ -1,0 +1,74 @@
+<h2>{{ team.name }}</h2>
+<div id="chartContainer" style="height: 300px; width: 100%;"></div>
+<table>
+  <tbody>
+    <tr>
+      <td>Season</td>
+      <td>Points</td>
+      <td>Position</td>
+    </tr>
+    {{#each team.history }}
+    <tr>
+      <td>{{ season }}</td>
+      <td>{{ team_position.points }}</td>
+      <td>{{ team_position.position }}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script>
+  // Create a request variable and assign a new XMLHttpRequest object to it.
+  var request = new XMLHttpRequest()
+
+  // Open a new connection, using the GET request on the URL endpoint
+  request.open('GET', '/api/team/{{ team.id }}', true)
+
+  request.onload = function () {
+    console.log(JSON.parse(this.response))
+    chart(JSON.parse(this.response))
+  }
+
+  request.send()
+
+
+  var chart = function (data) {
+    var chart = new CanvasJS.Chart("chartContainer", {
+      animationEnabled: true,
+      title: {
+        text: "{{ team.name }} Premier League Performances"
+      },
+      axisX: {
+
+      },
+      axisY: {
+
+      },
+      legend: {
+        cursor: "pointer",
+        fontSize: 16,
+        itemclick: toggleDataSeries
+      },
+      toolTip: {
+        shared: true
+      },
+      data: [{
+        name: "{{ team.name }}",
+        type: "line",
+        showInLegend: true,
+        dataPoints: data
+      }]
+    });
+    chart.render();
+
+    function toggleDataSeries(e) {
+      if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+        e.dataSeries.visible = false;
+      }
+      else {
+        e.dataSeries.visible = true;
+      }
+      chart.render();
+    }
+  }
+</script>
